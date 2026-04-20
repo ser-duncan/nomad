@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Japan Trip Planner</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;background:#f7f7f5;color:#111}
+.wrap{max-width:430px;margin:0 auto;padding:16px}
+h1{font-size:28px;margin:8px 0}
+h2{font-size:24px;margin:24px 0 12px}
+.card,details{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:14px;margin:0 0 12px;box-shadow:0 4px 18px rgba(0,0,0,.05)}
+summary{list-style:none;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+.meta{color:#666;font-size:13px;margin-bottom:6px}
+.item{border-top:1px solid #f0f0f0;padding:10px 0}
+.item:first-child{border-top:none}
+.tag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700;margin-right:8px}
+.travel{background:#e0f2fe;color:#075985}.activities{background:#dcfce7;color:#166534}.dining{background:#fef3c7;color:#92400e}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button{border:1px solid #ddd;background:#fff;border-radius:999px;padding:8px 12px;font-weight:600}
+button.active-book{background:#e11d48;color:#fff;border-color:#e11d48}
+button.active-wait{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+button.active-done{background:#dcfce7;color:#166534;border-color:#86efac}
+.small{color:#666;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:10px;text-align:center}
+.kpi strong{display:block;font-size:24px}
+a{color:#0f766e}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="meta">May 25 – Jun 5, 2026</div>
+    <h1>Japan Trip Planner</h1>
+    <div class="small">Tokyo · Hakone · Kyoto · Osaka</div>
+  </div>
+
+  <h2>Itinerary</h2>
+  <div id="days"></div>
+
+  <h2>Action Items</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="small">Book now</div><strong id="bookNow">0</strong></div>
+    <div class="kpi"><div class="small">Waiting</div><strong id="waiting">0</strong></div>
+    <div class="kpi"><div class="small">Done</div><strong id="done">0</strong></div>
+  </div>
+  <div id="actions" style="margin-top:12px"></div>
+</div>
+<script>
+const days = [
+{date:"Mon, May 25", title:"Arrival in Tokyo", city:"Tokyo", items:[
+["3:05 PM","travel","Arrive HND","Land at Haneda, clear immigration, and transfer to the Yoyogi/Shinjuku Airbnb."],
+["6:30 PM","activities","Easy Shinjuku walk","Neon streets, convenience store stop, and a low-effort first evening."],
+["7:30 PM","dining","Casual dinner","Ramen or simple nearby dinner."]]},
+{date:"Tue, May 26", title:"Meiji Shrine + Harajuku + Shibuya", city:"Tokyo", items:[
+["9:30 AM","activities","Meiji Shrine","Start early before crowds."],
+["11:00 AM","activities","Harajuku / Takeshita Street","Browse and walk straight from Meiji Shrine."],
+["12:30 PM","dining","Lunch","Lunch in Harajuku / Omotesando."],
+["2:00 PM","activities","Shibuya shopping","109, Loft, Tokyu Hands, Donki."],
+["7:00 PM","dining","Sushi dinner","Good Shibuya sushi night."]]},
+{date:"Wed, May 27", title:"Flexible Tokyo day", city:"Tokyo", items:[
+["9:00 AM","activities","Optional teamLab","Timed entry if you book it."],
+["2:00 PM","activities","Shopping / Pokémon Center","Use for flex attractions and shopping."],
+["7:00 PM","dining","Ramen night","Shinjuku or Shibuya ramen."]]},
+{date:"Thu, May 28", title:"Tokyo buffer day", city:"Tokyo", items:[
+["10:00 AM","activities","Last Tokyo priorities","Use for anything missed."],
+["3:00 PM","travel","Pack for Hakone","Prep luggage and next-day rail."],
+["7:00 PM","dining","Final Tokyo dinner","Choose any Tokyo meal still missing."]]},
+{date:"Fri, May 29", title:"Tokyo → Hakone", city:"Tokyo → Hakone", items:[
+["10:00 AM","travel","Check out Tokyo Airbnb","Head to Shinjuku with luggage."],
+["11:00 AM","travel","Romancecar to Hakone-Yumoto","Target Hakone No. 5, then taxi onward."],
+["2:30 PM","activities","Lake Ashi / pirate ship","Best arrival-afternoon use of time."],
+["7:00 PM","dining","Kaiseki dinner","Quiet Hakone dinner night."]]},
+{date:"Sat, May 30", title:"Hakone → Kyoto", city:"Hakone → Kyoto", items:[
+["9:00 AM","activities","Ropeway + Owakudani","High-value Hakone morning block."],
+["12:00 PM","travel","Check out Hakone villa","Taxi to Odawara."],
+["1:15 PM","travel","Shinkansen to Kyoto","Book 5 reserved seats together."],
+["6:30 PM","activities","Gion walk","Perfect first Kyoto evening."],
+["7:30 PM","dining","Kyoto dinner","Traditional Kyoto dinner."]]},
+{date:"Sun, May 31", title:"Fushimi Inari + Nishiki + Gion", city:"Kyoto", items:[
+["7:30 AM","activities","Fushimi Inari","Go early for fewer crowds."],
+["11:30 AM","dining","Nishiki Market","Food exploration block."],
+["5:30 PM","activities","Gion return","Golden-hour Kyoto wandering."],
+["7:00 PM","dining","Kyoto dinner","Dinner in the same area."]]},
+{date:"Mon, Jun 1", title:"Arashiyama day", city:"Kyoto", items:[
+["8:00 AM","travel","Train to Arashiyama","Early departure is worth it."],
+["9:00 AM","activities","Bamboo Grove","Morning is best."],
+["11:30 AM","dining","Lunch in Arashiyama","Stay in district for lunch."],
+["2:00 PM","activities","Tea ceremony or kimono","Bookable cultural experience slot."]]},
+{date:"Tue, Jun 2", title:"Kinkaku-ji + flex", city:"Kyoto", items:[
+["9:00 AM","activities","Kinkaku-ji","Anchor sight of the day."],
+["2:00 PM","activities","Optional Nijo / Philosopher’s Path","Choose by energy level."],
+["5:00 PM","travel","Pack for Osaka","Easy transfer tomorrow."],
+["7:00 PM","dining","Final Kyoto dinner","Special Kyoto meal."]]},
+{date:"Wed, Jun 3", title:"Kyoto → Osaka", city:"Kyoto → Osaka", items:[
+["11:00 AM","travel","Check out Kyoto Airbnb","No advance booking needed."],
+["12:00 PM","travel","Regional train to Osaka","Use IC card and stay flexible."],
+["6:00 PM","activities","Dotonbori","Classic first Osaka night."],
+["7:00 PM","dining","Takoyaki + okonomiyaki","Dedicated Osaka food night."]]},
+{date:"Thu, Jun 4", title:"Osaka full day", city:"Osaka", items:[
+["9:30 AM","activities","Osaka Castle","Morning anchor."],
+["2:00 PM","activities","Shinsekai","Classic Osaka neighborhood."],
+["5:00 PM","activities","Optional Pokémon Café Osaka","Tokyo location closed during your trip."],
+["7:00 PM","dining","Final Osaka dinner","Last big meal before airport day."]]},
+{date:"Fri, Jun 5", title:"Osaka → KIX", city:"Osaka → KIX", items:[
+["10:00 AM","travel","Check out Osaka Airbnb","Keep the morning calm."],
+["11:00 AM","dining","Early lunch","Eat before airport push."],
+["1:03 PM","travel","HARUKA to KIX","Preferred airport train target."],
+["4:55 PM","travel","Depart KIX","Flight home."]]},
+];
+
+const actions = [
+{title:"Add transit card to iPhone", due:"Before departure", status:"book now", steps:["Add Suica to Apple Wallet.","Load a starting balance.","Use it for local rail and convenience stores."], links:[["Apple Wallet transit card","https://support.apple.com/en-us/108772"]]},
+{title:"Book Hakone → Kyoto Shinkansen", due:"Do now", status:"book now", steps:["Search SmartEX for Odawara → Kyoto on Sat, May 30.","Target about 1:00–1:30 PM.","Book 5 reserved seats together."], links:[["SmartEX","https://smart-ex.jp/en/"]]},
+{title:"Book Tokyo → Hakone Romancecar", due:"Opens Apr 28, 2026 at 7:00 PM MDT", status:"waiting", steps:["Search Shinjuku → Hakone-Yumoto for Fri, May 29.","Target the 11:00 AM train.","Book 5 seats together."], links:[["Odakyu e-Romancecar","https://www.web-odakyu.com/e-romancecar/vacantSeatInquiry/inquiry?language=en"]]},
+{title:"Decide on Hakone Freepass", due:"Same week as Romancecar", status:"waiting", steps:["Check whether pirate ship + ropeway + local transport make it worthwhile."] , links:[["Hakone travel info","https://odakyu-global.com/"]]},
+{title:"Book teamLab if doing it", due:"By early/mid May", status:"waiting", steps:["Pick the Tokyo day first.","Book timed tickets and save QR codes."], links:[["teamLab Planets","https://www.teamlab.art/e/planets/"]]},
+{title:"Pokémon Café Tokyo closed during trip", due:"Already handled", status:"done", steps:["Do not plan this in Tokyo.","Use Osaka only if it still matters."], links:[["Pokémon Café","https://www.pokemon-cafe.jp/en/cafe/"]]},
+{title:"Book Osaka → KIX HARUKA", due:"Opens May 4, 2026 at 7:00 PM MDT", status:"waiting", steps:["Search JR West for Osaka area → KIX on Fri, Jun 5.","Target the 1:03 PM train.","Save booking screenshot."], links:[["HARUKA reservation","https://www.westjr.co.jp/global/en/ticket/haruka-oneway/reservation/"]]},
+{title:"Kyoto → Osaka regional train", due:"Day of travel", status:"waiting", steps:["Use Google Maps or JR West route finder.","Tap in with IC card.","Do not prebook."], links:[["JR West route finder","https://www.westjr.co.jp/travel-information/en/plan-your-trip/routes-schedule/"]]}
+];
+
+function renderDays(){
+  document.getElementById('days').innerHTML = days.map((d,i)=>`
+    <details ${i<2?'open':''}>
+      <summary>
+        <div class="meta">${d.date} · ${d.city}</div>
+        <strong>${d.title}</strong>
+      </summary>
+      <div style="margin-top:10px">
+        ${d.items.map(it=>`<div class="item"><div class="meta">${it[0]}</div><div><span class="tag ${it[1]}">${it[1]}</span><strong>${it[2]}</strong></div><div style="margin-top:6px">${it[3]}</div></div>`).join('')}
+      </div>
+    </details>`).join('');
+}
+
+function load(){
+  const saved = JSON.parse(localStorage.getItem('jp-statuses')||'{}');
+  actions.forEach(a => { if(saved[a.title]) a.status = saved[a.title]; });
+}
+function save(){
+  const saved = {};
+  actions.forEach(a => saved[a.title] = a.status);
+  localStorage.setItem('jp-statuses', JSON.stringify(saved));
+}
+function btnClass(type, current){
+  if(type!==current) return '';
+  if(type==='book now') return 'active-book';
+  if(type==='waiting') return 'active-wait';
+  return 'active-done';
+}
+function renderActions(){
+  document.getElementById('actions').innerHTML = actions.map((a,idx)=>`
+    <div class="card">
+      <div class="meta">${idx+1}. Due: ${a.due}</div>
+      <strong>${a.title}</strong>
+      <div class="btns">
+        <button class="${btnClass('book now',a.status)}" onclick="setStatus(${idx},'book now')">Book now</button>
+        <button class="${btnClass('waiting',a.status)}" onclick="setStatus(${idx},'waiting')">Waiting</button>
+        <button class="${btnClass('done',a.status)}" onclick="setStatus(${idx},'done')">Done</button>
+      </div>
+      <div class="small">${a.steps.map((s,i)=>`${i+1}. ${s}`).join('<br>')}</div>
+      <div style="margin-top:10px">${a.links.map(l=>`<div><a href="${l[1]}" target="_blank" rel="noreferrer">${l[0]}</a></div>`).join('')}</div>
+    </div>`).join('');
+  updateCounts();
+}
+function updateCounts(){
+  const counts = {'book now':0,'waiting':0,'done':0};
+  actions.forEach(a=>counts[a.status]++);
+  document.getElementById('bookNow').textContent = counts['book now'];
+  document.getElementById('waiting').textContent = counts['waiting'];
+  document.getElementById('done').textContent = counts['done'];
+}
+function setStatus(i,s){
+  actions[i].status = s; save(); renderActions();
+}
+load(); renderDays(); renderActions();
+</script>
+</body>
+</html>
