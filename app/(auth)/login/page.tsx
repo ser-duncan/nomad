@@ -20,7 +20,7 @@ export default function LoginPage() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${location.origin}/trips` },
+      options: { emailRedirectTo: `${location.origin}/auth/callback?next=/trips` },
     })
     if (error) {
       setError(error.message)
@@ -34,7 +34,7 @@ export default function LoginPage() {
     const supabase = createClient()
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${location.origin}/trips` },
+      options: { redirectTo: `${location.origin}/auth/callback?next=/trips` },
     })
   }
 
